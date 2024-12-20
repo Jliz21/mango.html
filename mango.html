@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Gift Exchange</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: #fff;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #4CAF50;
+            color: #ffffff;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .countdown {
+            margin-top: 20px;
+            font-size: 2rem;
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tangina nyo</h1>
+    <p>Pag bunot lang kaisa!!</p>
+    <button id="drawButton" onclick="drawName()">Pinduta d para maka bunot ka ya bulay og ka!</button>
+    <button id="resetButton" onclick="resetDraw()" style="display: none;">Reset</button>
+    <div class="countdown" id="countdown"></div>
+    <div class="result" id="result"></div>
+
+    <script>
+        // List of names with only 3 names
+        let names = JSON.parse(localStorage.getItem('names')) || ["Jason", "Khia", "Sandy"];
+        let drawnNames = JSON.parse(localStorage.getItem('drawnNames')) || [];
+        let countdownTimer;
+
+        // Function to draw a name
+        function drawName() {
+            if (names.length === 0) {
+                document.getElementById('result').innerText = "All names have been drawn!";
+                document.getElementById('drawButton').disabled = true; // Disable the button
+
+                // Show the reset button once all names are drawn
+                document.getElementById('resetButton').style.display = 'inline-block';
+                return;
+            }
+
+            // Disable the draw button during countdown
+            document.getElementById('drawButton').disabled = true;
+
+            // Countdown before drawing a name
+            let countdown = 5; // Countdown starting at 5 seconds
+            document.getElementById('countdown').innerText = `Surprise in ${countdown}...`;
+
+            // Update countdown every second
+            countdownTimer = setInterval(function() {
+                countdown--;
+                document.getElementById('countdown').innerText = `Surprise in ${countdown}...`;
+
+                if (countdown <= 0) {
+                    clearInterval(countdownTimer); // Stop the countdown
+                    displayDrawnName(); // Display the name after countdown
+                }
+            }, 1000);
+        }
+
+        // Function to display the drawn name
+        function displayDrawnName() {
+            // Draw a random name, making sure it hasn't been drawn already
+            let availableNames = names.filter(name => !drawnNames.includes(name));
+            if (availableNames.length === 0) {
+                document.getElementById('result').innerText = "All names have been drawn!";
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableNames.length);
+            const drawnName = availableNames[randomIndex];
+
+            // Add the drawn name to the list of drawn names
+            drawnNames.push(drawnName);
+            names = names.filter(name => name !== drawnName); // Remove the drawn name from available names
+
+            // Update the names and drawnNames in localStorage
+            localStorage.setItem('names', JSON.stringify(names));
+            localStorage.setItem('drawnNames', JSON.stringify(drawnNames));
+
+            // Display the drawn name
+            document.getElementById('result').innerText = `You drew: ${drawnName}`;
+
+            // Disable the button after the draw
+            document.getElementById('drawButton').disabled = true;
+
+            // Show the reset button
+            document.getElementById('resetButton').style.display = 'inline-block';
+        }
+
+        // Function to reset the draw
+        function resetDraw() {
+            // Reset the names and drawn names back to their original lists
+            names = ["Jason", "Khia", "Sandy"];
+            drawnNames = [];
+            localStorage.setItem('names', JSON.stringify(names));
+            localStorage.setItem('drawnNames', JSON.stringify(drawnNames));
+
+            // Re-enable the draw button
+            document.getElementById('drawButton').disabled = false;
+
+            // Hide the reset button
+            document.getElementById('resetButton').style.display = 'none';
+
+            // Clear the result display and countdown
+            document.getElementById('result').innerText = "";
+            document.getElementById('countdown').innerText = "";
+        }
+    </script>
+</body>
+</html>
